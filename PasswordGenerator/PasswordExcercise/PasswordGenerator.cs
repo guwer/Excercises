@@ -23,8 +23,9 @@ namespace PasswordExcercise
     public class PasswordGenerator : IPasswordGenerator
     {
         PasswordRequirements requirements;
-        List<char> password = new List<char>();
+        List<char> passwordChars = new List<char>();
         Random random;
+        int defaultMinChars= 1;
 
         public PasswordGenerator()
         {
@@ -43,34 +44,35 @@ namespace PasswordExcercise
 
             while (!PasswordLengthSatisfied())
             {
-                password.Add(GenerateRandomChar());
+                passwordChars.Add(GenerateRandomChar());
             }
-
-            return string.Join("", password);
+            var password = string.Join("", passwordChars);
+            return password;
         }
 
         private void GenerateRequiredChars()
         {
-            while (!CharsTypeRequirementsSatisfied())
+            char character;
+            while (!CharTypesRequirementsSatisfied())
             {
-                char character = GenerateRandomChar();
+                character = GenerateRandomChar();
 
                 if (char.IsLower(character) && !LowerRequirementSatisfied())
                 {
-                    password.Add(character);
+                    passwordChars.Add(character);
                 }
                 else if (char.IsUpper(character) && !UpperRequirementSatisfied())
                 {
-                    password.Add(character);
+                    passwordChars.Add(character);
                 }
                 else if (char.IsNumber(character) && !NumericRequirementSatisfied())
                 {
-                    password.Add(character);
+                    passwordChars.Add(character);
                 }
                 else if ((char.IsSymbol(character) || char.IsPunctuation(character))
                     && !SpecialCharRequirementSatisfied())
                 {
-                    password.Add(character);
+                    passwordChars.Add(character);
                 }
             }
         }
@@ -80,7 +82,7 @@ namespace PasswordExcercise
             return (char)random.Next(33, 126);
         }
 
-        private bool CharsTypeRequirementsSatisfied()
+        private bool CharTypesRequirementsSatisfied()
         {
             return LowerRequirementSatisfied() && UpperRequirementSatisfied()
                 && NumericRequirementSatisfied() && SpecialCharRequirementSatisfied();
@@ -88,32 +90,34 @@ namespace PasswordExcercise
 
         private bool PasswordLengthSatisfied()
         {
-            return password.Count >= requirements.MinLength
-                && password.Count <= requirements.MaxLength;
+            return passwordChars.Count >= requirements.MinLength
+                && passwordChars.Count <= requirements.MaxLength;
         }
 
         private bool SpecialCharRequirementSatisfied()
         {
-            return password.Where(p => char.IsSymbol(p) || char.IsPunctuation(p))
-                .Count() >= requirements.MinSpecialChars;
+            var count = passwordChars
+                .Where(p => char.IsSymbol(p) || char.IsPunctuation(p))
+                .Count();
+            return count >= requirements.MinSpecialChars && count >= defaultMinChars;
         }
 
         private bool NumericRequirementSatisfied()
         {
-            return password.Where(p => char.IsNumber(p))
-                .Count() >= requirements.MinNumericChars;
+            var count = passwordChars.Where(p => char.IsNumber(p)).Count();
+            return count >= requirements.MinNumericChars && count >= defaultMinChars;
         }
 
         private bool UpperRequirementSatisfied()
         {
-            return password.Where(p => char.IsUpper(p))
-                .Count() >= requirements.MinUpperAlphaChars;
+            var count = passwordChars.Where(p => char.IsUpper(p)).Count();
+            return count >= requirements.MinUpperAlphaChars && count >= defaultMinChars;
         }
 
         private bool LowerRequirementSatisfied()
         {
-            return password.Where(p => char.IsLower(p))
-                .Count() >= requirements.MinLowerAlphaChars;
+            var count = passwordChars.Where(p => char.IsLower(p)).Count();
+            return count >= requirements.MinLowerAlphaChars && count >= defaultMinChars;
         }
     }
 }
