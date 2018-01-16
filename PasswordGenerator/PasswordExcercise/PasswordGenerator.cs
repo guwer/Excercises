@@ -23,13 +23,14 @@ namespace PasswordExcercise
     public class PasswordGenerator : IPasswordGenerator
     {
         PasswordRequirements requirements;
-        List<char> passwordChars = new List<char>();
+        List<char> passwordChars;
         Random random;
         int defaultMinChars= 1;
 
         public PasswordGenerator()
         {
             random = new Random();
+            passwordChars = new List<char>();
         }
 
         public string GeneratePassword(PasswordRequirements requirements)
@@ -40,14 +41,20 @@ namespace PasswordExcercise
             }
 
             this.requirements = requirements;
-            GenerateRequiredChars();
 
+            GenerateRequiredChars();
+            GenerateMissingChars();
+
+            var password = string.Join("", passwordChars);
+            return password;
+        }
+
+        private void GenerateMissingChars()
+        {
             while (!PasswordLengthSatisfied())
             {
                 passwordChars.Add(GenerateRandomChar());
             }
-            var password = string.Join("", passwordChars);
-            return password;
         }
 
         private void GenerateRequiredChars()
